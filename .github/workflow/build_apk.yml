@@ -21,14 +21,19 @@ jobs:
           channel: 'stable'
 
       - name: Create Project Structure
-        run: flutter create . --platforms android --namespace com.filt.app # Specifichiamo il namespace qui
+        # Aggiungiamo il flag --androidx per risolvere il problema del vecchio Registrar
+        run: |
+          flutter create . --platforms android --namespace com.filt.app --androidx
+          cd android
+          echo "android.useAndroidX=true" >> gradlew.properties
+          echo "android.enableJetifier=true" >> gradlew.properties
 
       - name: Install Dependencies
         run: flutter pub get
         
       - name: Build APK
-        # Usiamo un flag per ignorare i problemi di versioni Gradle minori se necessario
-        run: flutter build apk --release --no-tree-shake-icons
+        # Aggiungiamo un flag per gestire eventuali icone mancanti e forzare la compilazione
+        run: flutter build apk --release --no-tree-shake-icons --no-pub
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
