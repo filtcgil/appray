@@ -18,17 +18,18 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable' # Torna all'ultima versione stabile (3.16+)
+          channel: 'stable'
 
-      - name: Create Project and Fix Android SDK
+      - name: Create Project and Fix SDK
         run: |
-          # Creiamo il progetto con l'organizzazione corretta
+          # Creiamo il progetto
           flutter create . --platforms android --org com.filt
           
-          # Forziamo il Compile SDK a 34 come richiesto dai log
-          sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' android/app/build.gradle
+          # Cerchiamo il file build.gradle (sia .gradle che .gradle.kts) e forziamo l'SDK a 34
+          find android/app -name "build.gradle*" -exec sed -i 's/compileSdk = .*/compileSdk = 34/g' {} +
+          find android/app -name "build.gradle*" -exec sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' {} +
           
-          # Abilitiamo AndroidX e Jetifier per i vecchi plugin
+          # Configurazione AndroidX
           cd android
           echo "android.useAndroidX=true" > gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
