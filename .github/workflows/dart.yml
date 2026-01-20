@@ -1,7 +1,7 @@
 name: Build Flutter APK
 on:
   push:
-    branches: [ main ] # Controlla se la tua branch si chiama main o master
+    branches: [ main ]
 
 jobs:
   build:
@@ -19,10 +19,13 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          # Non serve specificare la versione, prenderà l'ultima stabile
-          
+
+      # Questo comando crea la cartella android/ mancante
+      - name: Create Android files
+        run: flutter create . --platforms android
+
       - name: Install Dependencies
-        run: flutter pub get # IMPORTANTE: usa flutter, non dart
+        run: flutter pub get
         
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
@@ -30,5 +33,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: FiltApp-Installabile
+          name: FiltApp-APK
           path: build/app/outputs/flutter-apk/app-release.apk
