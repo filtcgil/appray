@@ -1,7 +1,7 @@
 name: Build Flutter APK
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   build:
@@ -20,23 +20,24 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Create Project Structure
-        # Aggiungiamo il flag --androidx per risolvere il problema del vecchio Registrar
+      - name: Repair and Create Android Structure
+        # Usiamo --org per definire il pacchetto (com.filt.app)
         run: |
-          flutter create . --platforms android --namespace com.filt.app --androidx
+          flutter create . --platforms android --org com.filt
           cd android
-          echo "android.useAndroidX=true" >> gradlew.properties
-          echo "android.enableJetifier=true" >> gradlew.properties
+          echo "android.useAndroidX=true" > gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
 
       - name: Install Dependencies
         run: flutter pub get
         
       - name: Build APK
-        # Aggiungiamo un flag per gestire eventuali icone mancanti e forzare la compilazione
-        run: flutter build apk --release --no-tree-shake-icons --no-pub
+        # Rimuoviamo --no-pub per essere sicuri che scarichi tutto correttamente
+        run: flutter build apk --release --no-tree-shake-icons
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FiltApp-APK
           path: build/app/outputs/flutter-apk/app-release.apk
+          
