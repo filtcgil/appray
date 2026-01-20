@@ -20,14 +20,14 @@ jobs:
         with:
           channel: 'stable'
 
-      # Questo comando crea la cartella android/ mancante
-      - name: Create Android files
-        run: flutter create . --platforms android
+      - name: Create Project Structure
+        run: flutter create . --platforms android --namespace com.filt.app # Specifichiamo il namespace qui
 
       - name: Install Dependencies
         run: flutter pub get
         
       - name: Build APK
+        # Usiamo un flag per ignorare i problemi di versioni Gradle minori se necessario
         run: flutter build apk --release --no-tree-shake-icons
       
       - name: Upload APK
@@ -35,3 +35,4 @@ jobs:
         with:
           name: FiltApp-APK
           path: build/app/outputs/flutter-apk/app-release.apk
+          
