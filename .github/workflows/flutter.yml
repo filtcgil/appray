@@ -32,7 +32,7 @@ jobs:
           cp -r lib flutter_temp/
           cp pubspec.yaml flutter_temp/
 
-      # 5️⃣ Cancella cartelle di piattaforma legacy
+      # 5️⃣ Cancella vecchie cartelle di piattaforma
       - name: Remove old platform folders
         run: rm -rf android ios linux macos windows web
 
@@ -41,7 +41,7 @@ jobs:
         run: |
           cd flutter_temp
           flutter create -t app .
-          
+
       # 7️⃣ Copia dentro lib/ e pubspec.yaml originali
       - name: Copy back lib and pubspec
         run: |
@@ -62,3 +62,7 @@ jobs:
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      # 1️⃣1️⃣ Rimuove cartella temporanea
+      - name: Clean temp folder
+        run: rm -rf flutter_temp
