@@ -20,19 +20,22 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Repair and Create Android Structure
-        # Usiamo --org per definire il pacchetto (com.filt.app)
+      - name: Create Android Structure
+        # Aumentiamo la memoria RAM per Gradle e Java
         run: |
           flutter create . --platforms android --org com.filt
           cd android
-          echo "android.useAndroidX=true" > gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=512m" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=false" >> gradle.properties
 
       - name: Install Dependencies
         run: flutter pub get
         
       - name: Build APK
-        # Rimuoviamo --no-pub per essere sicuri che scarichi tutto correttamente
+        # Forziamo il limite di memoria anche qui
+        env:
+          JAVA_OPTS: "-Xmx4096m"
         run: flutter build apk --release --no-tree-shake-icons
       
       - name: Upload APK
