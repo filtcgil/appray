@@ -13,17 +13,22 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.6' # Versione stabile che supporta i plugin Syncfusion
-          channel: 'stable'
+          channel: 'stable' # Torna all'ultima versione stabile (3.16+)
 
-      - name: Create Project Structure
+      - name: Create Project and Fix Android SDK
         run: |
+          # Creiamo il progetto con l'organizzazione corretta
           flutter create . --platforms android --org com.filt
+          
+          # Forziamo il Compile SDK a 34 come richiesto dai log
+          sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' android/app/build.gradle
+          
+          # Abilitiamo AndroidX e Jetifier per i vecchi plugin
           cd android
           echo "android.useAndroidX=true" > gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
@@ -39,3 +44,4 @@ jobs:
         with:
           name: FiltApp-APK
           path: build/app/outputs/flutter-apk/app-release.apk
+          
