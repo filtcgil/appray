@@ -11,58 +11,48 @@ jobs:
 
     steps:
       # 1️⃣ Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       # 2️⃣ Set up Flutter
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: 'stable'
-          channel: 'stable'
-          cache: true
 
-      # 3️⃣ Crea una cartella temporanea
-      - name: Create temp folder
-        run: mkdir flutter_temp
-
-      # 4️⃣ Copia solo lib e pubspec.yaml
-      - name: Copy source files
-        run: |
-          cp -r lib flutter_temp/
-          cp pubspec.yaml flutter_temp/
-
-      # 5️⃣ Cancella vecchie cartelle di piattaforma
+      # 3️⃣ Rimuove cartelle Android/iOS/Web/Windows/MacOS/Linux
       - name: Remove old platform folders
-        run: rm -rf android ios linux macos windows web
+        run: rm -rf android ios web linux macos windows
 
-      # 6️⃣ Crea nuovo progetto Flutter in cartella temporanea
-      - name: Recreate Flutter project in temp
+      # 4️⃣ Crea progetto Flutter temporaneo in flutter_temp
+      - name: Create temp Flutter project
         run: |
+          mkdir flutter_temp
           cd flutter_temp
           flutter create -t app .
 
-      # 7️⃣ Copia dentro lib/ e pubspec.yaml originali
-      - name: Copy back lib and pubspec
+      # 5️⃣ Copia lib/ e pubspec.yaml nel progetto temporaneo
+      - name: Copy source code
         run: |
+          cp -r lib flutter_temp/lib
+          cp pubspec.yaml flutter_temp/pubspec.yaml
+
+      # 6️⃣ Sostituisci la repo principale con la struttura pulita
+      - name: Replace repo with temp project
+        run: |
+          rm -rf lib pubspec.yaml
           cp -r flutter_temp/lib ./lib
           cp flutter_temp/pubspec.yaml ./pubspec.yaml
+          rm -rf flutter_temp
 
-      # 8️⃣ Installa le dipendenze
-      - name: Install dependencies
+      # 7️⃣ Installa le dipendenze
+      - name: Flutter pub get
         run: flutter pub get
 
-      # 9️⃣ Build APK
-      - name: Build release APK
+      # 8️⃣ Build APK release
+      - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      # 🔟 Upload APK
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      # 9️⃣ Upload APK
+      - uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-
-      # 1️⃣1️⃣ Rimuove cartella temporanea
-      - name: Clean temp folder
-        run: rm -rf flutter_temp
