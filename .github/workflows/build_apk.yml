@@ -13,15 +13,15 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '11' # Java 11 è più stabile per le versioni Flutter 3.10
+          java-version: '11'
           
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.6' # VERSIONE SPECIFICA COMPATIBILE
+          flutter-version: '3.10.6' # Versione stabile che supporta i plugin Syncfusion
           channel: 'stable'
 
-      - name: Create Android Structure
+      - name: Create Project Structure
         run: |
           flutter create . --platforms android --org com.filt
           cd android
@@ -39,4 +39,3 @@ jobs:
         with:
           name: FiltApp-APK
           path: build/app/outputs/flutter-apk/app-release.apk
-          
