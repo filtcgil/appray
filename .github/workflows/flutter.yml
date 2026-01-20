@@ -10,48 +10,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
+      # 1️⃣ Checkout del repository
       - uses: actions/checkout@v4
 
-      # 2️⃣ Set up Flutter
+      # 2️⃣ Setup Flutter
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 'stable'
 
-      # 3️⃣ Rimuove cartelle Android/iOS/Web/Windows/MacOS/Linux
+      # 3️⃣ Cache dipendenze pub
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      # 4️⃣ Rimuove vecchie cartelle di piattaforma
       - name: Remove old platform folders
         run: rm -rf android ios web linux macos windows
 
-      # 4️⃣ Crea progetto Flutter temporaneo in flutter_temp
+      # 5️⃣ Crea cartella temporanea e nuovo progetto Flutter
       - name: Create temp Flutter project
         run: |
           mkdir flutter_temp
           cd flutter_temp
           flutter create -t app .
 
-      # 5️⃣ Copia lib/ e pubspec.yaml nel progetto temporaneo
-      - name: Copy source code
+      # 6️⃣ Copia lib e pubspec.yaml originali nel progetto temporaneo
+      - name: Copy source code to temp
         run: |
           cp -r lib flutter_temp/lib
           cp pubspec.yaml flutter_temp/pubspec.yaml
 
-      # 6️⃣ Sostituisci la repo principale con la struttura pulita
-      - name: Replace repo with temp project
+      # 7️⃣ Sovrascrivi il progetto principale con quello temporaneo
+      - name: Replace main project with temp project
         run: |
           rm -rf lib pubspec.yaml
           cp -r flutter_temp/lib ./lib
           cp flutter_temp/pubspec.yaml ./pubspec.yaml
           rm -rf flutter_temp
 
-      # 7️⃣ Installa le dipendenze
+      # 8️⃣ Installa le dipendenze
       - name: Flutter pub get
         run: flutter pub get
 
-      # 8️⃣ Build APK release
-      - name: Build APK
+      # 9️⃣ Build APK release
+      - name: Build release APK
         run: flutter build apk --release --no-tree-shake-icons
 
-      # 9️⃣ Upload APK
+      # 🔟 Upload APK come artifact
       - uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
