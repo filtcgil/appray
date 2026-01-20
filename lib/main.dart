@@ -19,22 +19,24 @@ void main() async {
       appId: "1:345664437296:web:bf0531b4d99494b83681f5",
     ),
   );
-  runApp(FiltApp());
+  runApp(const FiltApp());
 }
 
 class FiltApp extends StatelessWidget {
+  const FiltApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.red, useMaterial3: true),
-      home: WelcomePage(),
+      theme: ThemeData(primaryColor: Colors.red, useMaterial3: true),
+      home: const WelcomePage(),
     );
   }
 }
 
 // --- WELCOME PAGE ---
 class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,13 +52,13 @@ class WelcomePage extends StatelessWidget {
             const Text("FILT CGIL", style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
             const SizedBox(height: 50),
             ElevatedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage())),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage())),
               style: ElevatedButton.styleFrom(minimumSize: const Size(250, 50), backgroundColor: Colors.white, foregroundColor: Colors.red[900]),
               child: const Text("ACCEDI"),
             ),
             const SizedBox(height: 15),
             OutlinedButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationPage())),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegistrationPage())),
               style: OutlinedButton.styleFrom(minimumSize: const Size(250, 50), side: const BorderSide(color: Colors.white), foregroundColor: Colors.white),
               child: const Text("REGISTRATI"),
             ),
@@ -67,8 +69,9 @@ class WelcomePage extends StatelessWidget {
   }
 }
 
-// --- PAGINA REGISTRAZIONE ---
+// --- REGISTRAZIONE ---
 class RegistrationPage extends StatefulWidget {
+  const RegistrationPage({super.key});
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
@@ -113,14 +116,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
         TextFormField(controller: _pass, decoration: const InputDecoration(labelText: "Password"), obscureText: true),
         TextFormField(controller: _confirmPass, decoration: const InputDecoration(labelText: "Conferma Password"), obscureText: true),
         const SizedBox(height: 30),
-        ElevatedButton(onPressed: _registra, style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)), child: const Text("REGISTRATI")),
+        ElevatedButton(onPressed: _registra, child: const Text("REGISTRATI")),
       ]))),
     );
   }
 }
 
-// --- PAGINA LOGIN ---
+// --- LOGIN ---
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -140,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
       TextField(controller: _email, decoration: const InputDecoration(labelText: "Email")),
       TextField(controller: _pass, decoration: const InputDecoration(labelText: "Password"), obscureText: true),
       const SizedBox(height: 20),
-      ElevatedButton(onPressed: _login, style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)), child: const Text("ENTRA")),
+      ElevatedButton(onPressed: _login, child: const Text("ENTRA")),
     ])));
   }
 }
@@ -148,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
 // --- NAVIGAZIONE ---
 class MainNavigation extends StatefulWidget {
   final Map<String, dynamic> userData;
-  MainNavigation({required this.userData});
+  const MainNavigation({super.key, required this.userData});
   @override
   _MainNavigationState createState() => _MainNavigationState();
 }
@@ -160,7 +164,7 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       body: IndexedStack(index: _index, children: [
         ScioperiPage(userData: widget.userData),
-        NewsPage(),
+        const NewsPage(),
         DrivePage(userData: widget.userData),
       ]),
       bottomNavigationBar: BottomNavigationBar(currentIndex: _index, onTap: (i) => setState(() => _index = i), items: const [
@@ -175,7 +179,7 @@ class _MainNavigationState extends State<MainNavigation> {
 // --- SCIOPERI ---
 class ScioperiPage extends StatelessWidget {
   final Map<String, dynamic> userData;
-  ScioperiPage({required this.userData});
+  const ScioperiPage({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -197,9 +201,7 @@ class ScioperiPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("${data.day}/${data.month}/${data.year}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
-                      Text("Settore: ${d['Settore'] ?? 'N.D.'}"),
                       Text("Azienda: ${d['Azienda'] ?? 'N.D.'}"),
-                      Text("Orario: ${d['Orario'] ?? 'N.D.'}"),
                       if (d['Allegato_url'] != null)
                         TextButton(
                           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => FileViewer(url: d['Allegato_url'], name: "Allegato Sciopero"))),
@@ -219,6 +221,7 @@ class ScioperiPage extends StatelessWidget {
 
 // --- NEWS ---
 class NewsPage extends StatelessWidget {
+  const NewsPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,11 +251,11 @@ class NewsPage extends StatelessWidget {
   }
 }
 
-// --- DRIVE (FILTRO RIPRISTINATO E FIX APERTURA) ---
+// --- DRIVE ---
 class DrivePage extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String? folderId, folderName;
-  DrivePage({required this.userData, this.folderId, this.folderName});
+  const DrivePage({super.key, required this.userData, this.folderId, this.folderName});
   @override
   _DrivePageState createState() => _DrivePageState();
 }
@@ -273,27 +276,12 @@ class _DrivePageState extends State<DrivePage> {
       if (res.statusCode == 200) {
         var all = json.decode(res.body)['files'] as List;
         setState(() {
-          // Filtro gerarchico ripristinato solo per la navigazione iniziale
           if (widget.folderId == null) {
             files = all.where((f) {
               String n = f['name'].toString().toLowerCase();
               return n == 'biblioteca' || n == widget.userData['settore'].toString().toLowerCase();
             }).toList();
-          } else if (widget.folderName?.toLowerCase() == 'terra') {
-            files = all.where((f) => f['name'].toString().toLowerCase() == widget.userData['sottoSettore'].toString().toLowerCase()).toList();
-          } else if (widget.folderName?.toLowerCase() == 'ferrovieri') {
-             files = all.where((f) {
-               String n = f['name'].toString().toLowerCase();
-               if (widget.userData['gruppo'] != null) return n == widget.userData['gruppo'].toString().toLowerCase();
-               return n == widget.userData['azienda'].toString().toLowerCase();
-             }).toList();
-          } else if (widget.folderName?.toLowerCase() == 'trenitalia' || widget.folderName?.toLowerCase() == 'gruppo fs') {
-             files = all.where((f) {
-               String n = f['name'].toString().toLowerCase();
-               return n == 'regionale' || n == 'long haul' ? n == widget.userData['divisione'].toString().toLowerCase() : true;
-             }).toList();
           } else {
-            // Se siamo già in una sottocartella specifica (es. "Regionale"), mostra tutto il contenuto senza ulteriori filtri
             files = all;
           }
           isLoading = false;
@@ -318,7 +306,6 @@ class _DrivePageState extends State<DrivePage> {
               if (isFolder) {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => DrivePage(userData: widget.userData, folderId: f['id'], folderName: f['name'])));
               } else {
-                // Utilizza webViewLink per identificare correttamente il file
                 Navigator.push(context, MaterialPageRoute(builder: (context) => FileViewer(url: f['webViewLink'], name: f['name'])));
               }
             },
@@ -332,31 +319,20 @@ class _DrivePageState extends State<DrivePage> {
 // --- FILE VIEWER ---
 class FileViewer extends StatelessWidget {
   final String url, name;
-  FileViewer({required this.url, required this.name});
+  const FileViewer({super.key, required this.url, required this.name});
 
   @override
   Widget build(BuildContext context) {
     final regExp = RegExp(r"(file/d/|id=)([a-zA-Z0-9_-]{25,})");
     final match = regExp.firstMatch(url);
     final String? fileId = match?.group(2);
-    
-    // Link diretto per il rendering PDF
     final String directUrl = "https://drive.google.com/uc?id=$fileId";
 
     return Scaffold(
       appBar: AppBar(title: Text(name), backgroundColor: Colors.black, foregroundColor: Colors.white),
       body: fileId == null 
         ? const Center(child: Text("Documento non disponibile")) 
-        : SfPdfViewer.network(
-            directUrl, 
-            enableTextSelection: false,
-            // Gestione errori caricamento
-            onDocumentLoadFailed: (details) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Errore caricamento: ${details.description}"))
-              );
-            },
-          ),
+        : SfPdfViewer.network(directUrl),
     );
   }
 }
