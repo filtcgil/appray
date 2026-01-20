@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -20,20 +22,41 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # 🔥 PASSAGGIO CHIAVE
-      - name: Remove legacy Android folder
+      # 3️⃣ Crea una cartella temporanea
+      - name: Create temp folder
+        run: mkdir flutter_temp
+
+      # 4️⃣ Copia solo lib e pubspec.yaml
+      - name: Copy source files
+        run: |
+          cp -r lib flutter_temp/
+          cp pubspec.yaml flutter_temp/
+
+      # 5️⃣ Cancella cartelle di piattaforma legacy
+      - name: Remove old platform folders
         run: rm -rf android ios linux macos windows web
 
-      # 🔥 RICREAZIONE PROGETTO
-      - name: Recreate Flutter project structure
-        run: flutter create .
+      # 6️⃣ Crea nuovo progetto Flutter in cartella temporanea
+      - name: Recreate Flutter project in temp
+        run: |
+          cd flutter_temp
+          flutter create -t app .
+          
+      # 7️⃣ Copia dentro lib/ e pubspec.yaml originali
+      - name: Copy back lib and pubspec
+        run: |
+          cp -r flutter_temp/lib ./lib
+          cp flutter_temp/pubspec.yaml ./pubspec.yaml
 
+      # 8️⃣ Installa le dipendenze
       - name: Install dependencies
         run: flutter pub get
 
+      # 9️⃣ Build APK
       - name: Build release APK
         run: flutter build apk --release --no-tree-shake-icons
 
+      # 🔟 Upload APK
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
